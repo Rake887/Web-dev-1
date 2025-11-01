@@ -147,22 +147,47 @@ class Extradition(models.Model):
     def __str__(self):
         return f"Выдача #{self.id} — {self.user.username} ({self.pickup_point})"
 
-class ExtraditionReceipt(models.Model):
-    receipt = models.OneToOneField(
-        Receipt,
-        on_delete=models.CASCADE,
-        related_name='extradition_receipt',
-        verbose_name="Чек"
+class ExtraditionPackage(models.Model):
+    """
+    Пакет выдачи: уникальный код вместо UUID.
+    """
+    barcode = models.CharField(
+        max_length=20,
+        unique=True,
+        blank=True,
+        verbose_name="Штрихкод выдачи"
     )
-    issued_by = models.ForeignKey(
+
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name="Выдал сотрудник"
+        on_delete=models.CASCADE,
+        related_name="extradition_packages",
+        verbose_name="Получатель"
     )
-    pickup_point = models.CharField(max_length=255, verbose_name="Пункт выдачи")
-    comment = models.CharField(max_length=255, blank=True, null=True, verbose_name="Комментарий")
-    issued_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата выдачи")
+
+    track_codes = models.ManyToManyField(
+        'TrackCode',
+        related_name="extradition_packages",
+        verbose_name="Трек-коды"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлено")
+    is_issued = models.BooleanField(default=False, verbose_name="Выдано клиенту")
+
+    def save(self, *args, **kwargs):
+        if not self.barcode:
+            last_id = ExtraditionPackage.objects.count() + 1
+            self.barcode = f"PKG-{last_id:06d}"  # → PKG-000001
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Выдача по чеку #{self.receipt.id}"
+        return f"{self.barcode} ({self.user.username})"
+
+    def update_ready_tracks(self):
+        from myprofile.models import TrackCode
+        ready_tracks = TrackCode.objects.filter(owner=self.user, status='ready')
+        self.track_codes.add(*ready_tracks)
+        return ready_tracks.count()
+
+
