@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'mainview',
     'myprofile',
     'register',
+    'pywebpush',
 ]
 
 MIDDLEWARE = [

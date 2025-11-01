@@ -14,9 +14,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path, include
+from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import Extradition_Package, customer_paycheks, notifications, profile_setting, personal_profile, status_update, track_codes, push_subscribe, extraditions, ExtraditionPackage
+from .views import customer_paycheks, notifications, profile_setting, personal_profile, status_update, track_codes, push_subscribe, extraditions, extradition_Package
 
 urlpatterns = [
     path('track-codes/', track_codes.track_codes_view, name='track_codes'),
@@ -34,7 +34,7 @@ urlpatterns = [
     path("notifications/mark-as-read/", notifications.mark_notifications_as_read, name="mark_notifications_as_read"),
     path('save-subscription/', push_subscribe.save_push_subscription, name='save_subscription'),
     path('extradition/', extraditions.extradition_view, name='extradition'),
-    path('extradition-package/', Extradition_Package.extradition_package_view, name='extradition_package'),
+    path('extradition-package/', extradition_Package.extradition_package_view, name='extradition_package'),
 
 ]
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

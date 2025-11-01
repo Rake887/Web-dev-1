@@ -1,38 +1,34 @@
 <!DOCTYPE html>
 <html lang="ru">
-{% load static %}
+{% load static %}    	
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Формирование пакетов выдачи — Inter Cargo</title>
+    <title>Inter Cargo - доставка из Китая в Казахстан</title>
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#e53e3e',
-                        secondary: '#4a5568'
-                    },
-                    borderRadius: {
-                        'button': '8px'
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="{% static 'styles/css2.css' %}" />
-    <link rel="stylesheet" href="{% static 'styles/styles.css' %}" />
-    <link rel="stylesheet" href="{% static 'styles/remixicon/remixicon.css' %}" />
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#e53e3e',secondary:'#4a5568'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <script src="{% static 'scripts/core.js' %}"></script>
+    <script src="{% static 'scripts/faq.js' %}"></script>
+    <script src="{% static 'scripts/menu.js' %}"></script>
+    <script src="{% static 'scripts/notifications.js' %}"></script>
+    <script src="{% static 'scripts/notifyButton.js' %}"></script>
+    <script src="{% static 'scripts/calculator.js' %}"></script>
+    <script src="{% static 'scripts/forms.js' %}"></script>
+    <script src="{% static 'scripts/phone.js' %}"></script>
+    <script src="{% static 'scripts/coockiesAndPush.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'styles/css2.css' %}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles/styles.css' %}"/>
+    <link rel="stylesheet" href="{% static 'styles/remixicon/remixicon.css' %}"/>
 </head>
-
 <body class="bg-gray-50 min-h-screen">
 {% include 'includes/header.html' %}
 
-{% block content %}
-<div class="flex min-h-screen">
+    {% block content %}
+
+    <div class="flex min-h-screen">
     {% include 'includes/sidebar.html' %}
 
     <div class="w-full px-6 py-8 mx-auto">
@@ -109,17 +105,38 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for pkg in packages %}
-                        <tr class="border-t hover:bg-gray-50 transition">
-                            <td class="py-2 px-4 font-mono">{{ pkg.barcode }}</td>
-                            <td class="py-2 px-4">{{ pkg.user.username }}</td>
-                            <td class="py-2 px-4 text-gray-500">{{ pkg.created_at|date:"d.m.Y H:i" }}</td>
-                            <td class="py-2 px-4">
-                                {% for t in pkg.track_codes.all %}
-                                    <span class="text-xs bg-gray-100 px-2 py-1 rounded mb-1 inline-block">
-                                        {{ t.track_code }}
-                                    </span>
-                                {% endfor %}
-                            </td>
-                            <td class="py-2 px-4 text-gray-600">{{ pkg.comment|default:"—" }}</td>
-                            <td class="py-2 px-4">
+                    {% for pkg in packages %}
+                    <tr class="border-t hover:bg-gray-50 transition">
+                        <td class="py-2 px-4 font-mono">{{ pkg.barcode }}</td>
+                        <td class="py-2 px-4">{{ pkg.user.username }}</td>
+                        <td class="py-2 px-4 text-gray-500">{{ pkg.created_at|date:"d.m.Y H:i" }}</td>
+                        <td class="py-2 px-4">
+                            {% for t in pkg.track_codes.all %}
+                                <span class="text-xs bg-gray-100 px-2 py-1 rounded mb-1 inline-block">
+                                    {{ t.track_code }}
+                                </span>
+                            {% endfor %}
+                        </td>
+                        <td class="py-2 px-4 text-gray-600">{{ pkg.comment|default:"—" }}</td>
+                        <td class="py-2 px-4">
+                            {% if pkg.status == 'issued' %}
+                                <span class="text-green-600 font-semibold">Выдан</span>
+                            {% else %}
+                                <span class="text-yellow-600 font-semibold">Ожидает выдачи</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    </div> 
+
+    {% endblock %}
+
+{% include 'includes/footer.html' %}
+</body>
+</html>
