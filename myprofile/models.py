@@ -86,7 +86,6 @@ class UserPushSubscription(models.Model):
     subscription_data = models.JSONField(default=dict, blank=True, null=True)
 
 class Extradition(models.Model):
-    # Кто получает
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -94,7 +93,6 @@ class Extradition(models.Model):
         verbose_name="Получатель"
     )
 
-    # Какие посылки выданы (обычно из чека)
     receipt = models.ForeignKey(
         'Receipt',
         on_delete=models.SET_NULL,
@@ -104,20 +102,11 @@ class Extradition(models.Model):
         verbose_name="Чек"
     )
 
-    # Трек-коды, включённые в выдачу
-    track_codes = models.ManyToManyField(
-        'TrackCode',
-        related_name="extraditions",
-        verbose_name="Трек-коды"
-    )
-
-    # Где выдано
     pickup_point = models.CharField(
         max_length=255,
         verbose_name="Пункт выдачи"
     )
 
-    # Кто выдал (если есть сотрудник/оператор)
     issued_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -127,25 +116,38 @@ class Extradition(models.Model):
         verbose_name="Сотрудник, выдавший посылку"
     )
 
-    # Подпись или подтверждение
     confirmed = models.BooleanField(
         default=False,
         verbose_name="Подтверждено получателем"
     )
 
-    # Доп. комментарий
     comment = models.TextField(
         blank=True,
         verbose_name="Комментарий"
     )
 
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Создано"
+    )
+
     class Meta:
         verbose_name = "Выдача посылки"
         verbose_name_plural = "Выдачи посылок"
-        
 
     def __str__(self):
         return f"Выдача #{self.id} — {self.user.username} ({self.pickup_point})"
+
+    @property
+    def total_packages(self):
+        return self.packages.count()
+
+    @property
+    def all_barcodes(self):
+        """Для получения всех штрих-кодов, связанных с выдачей"""
+        return [p.barcode for p in self.packages.all()]
+
+
 
 class ExtraditionPackage(models.Model):
     """
@@ -169,6 +171,12 @@ class ExtraditionPackage(models.Model):
         'TrackCode',
         related_name="extradition_packages",
         verbose_name="Трек-коды"
+    )
+
+    comment = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Комментарий"
     )
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
